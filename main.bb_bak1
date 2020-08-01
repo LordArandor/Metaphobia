@@ -74,7 +74,7 @@ Function ReloadChunk()
 	For i = minx To maxx Step 1
 		For j = miny To maxy Step 1
 			If i > 0 And j > 0
-				HideCell(mainmap(i,j))
+				DeleteCell(mainmap(i,j))
 				Delete(mainmap(i,j))
 				mainmap(i,j) = RndCell(i,j,Rnd(1,4))
 				ShowCell(mainmap(i,j))
@@ -96,22 +96,22 @@ Function DeloadChunk()
 
 			If i > 0 And j > 0
 			If i < minx And mainmap(i,j) <> Null
-			 	HideCell(mainmap(i,j))
+			 	DeleteCell(mainmap(i,j))
 				mainmap(i,j)\is = 0
 				Delete(mainmap(i,j))
 			EndIf
 			If j < miny And mainmap(i,j) <> Null
-			 	HideCell(mainmap(i,j))
+			 	DeleteCell(mainmap(i,j))
 				mainmap(i,j)\is = 0
 				Delete(mainmap(i,j))
 			EndIf
 			If i > maxx And mainmap(i,j) <> Null
-			 	HideCell(mainmap(i,j))
+			 	DeleteCell(mainmap(i,j))
 				mainmap(i,j)\is = 0
 				Delete(mainmap(i,j))
 			EndIf
 			If j > maxy And mainmap(i,j) <> Null
-			 	HideCell(mainmap(i,j))
+			 	DeleteCell(mainmap(i,j))
 				mainmap(i,j)\is = 0
 				Delete(mainmap(i,j))
 			EndIf
@@ -154,6 +154,10 @@ DeloadChunk()
 Collisions(PLAY_COLL,WALL_COLL,2,2)
 ;Input("Loading completed.")
 
+fpsTimer = 0 
+fps = 0
+fpsTicks = 0
+
 While Not KeyHit(1)
 	UpdatePlayerCellPosition()
 	LoadChunk()
@@ -163,10 +167,19 @@ While Not KeyHit(1)
 	Flashlight()
 	ControlPlayer(player)
 
-	If KeyHit(19) Then ReloadChunk()
+	If (MilliSecs() - fpsTimer > 1000)
+	fpsTimer = MilliSecs()
+	fps = fpsTicks
+	fpsTicks = 0
+Else
+	fpsTicks = fpsTicks + 1
+EndIf
+
+	If KeyDown(19) Then ReloadChunk()
 
 	UpdateWorld
 	RenderWorld
+		Text 5,5,"fps: "+fps
 	Flip
 
 Wend

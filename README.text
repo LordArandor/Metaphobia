@@ -2,7 +2,8 @@
  Backrooms-inspired randomly generated maze. 
  Press escape to quit.
  You can just download the "Executable" folder.
- Do not move executable outside folder. Use the shortcut.
+ Do not move executable outside folder. Use the shortcut.	
+ Press F to turn on flashlight.
 
 Features:
  Maze will change on you.
@@ -11,4 +12,5 @@ Features:
 
 Bugs:
  Fullscreen now works too well. Sorry :/
- Occasionally you will spawn in a 2x2 square. Press R to reload the chunk in order to escape.
+ Occasionally you will spawn in a 2x2 square. Press R to reload the chunk in order to escape.	
+ Flashlight currently doesn't work

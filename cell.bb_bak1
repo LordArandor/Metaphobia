@@ -15,10 +15,10 @@ End Type
 Global WALL_COLL = 1
 
 ;TEXTURE VARIABLES
-Global WallTex = LoadTexture("Textures/wallpaper.jpg")
-Global FloorTex = LoadTexture("Textures/carpet.jpg")
-Global CeilingTex = LoadTexture("Textures/ceiling.jpg")
-Global CornerTex = LoadTexture("Textures/column.jpg")
+Global WallTex = LoadTexture("Textures/wallpaper.jpg",256)
+Global FloorTex = LoadTexture("Textures/carpet.jpg",256)
+Global CeilingTex = LoadTexture("Textures/ceiling.jpg",256)
+Global CornerTex = LoadTexture("Textures/column.jpg",256)
 
 ;MESH VARIABLES
 Global cellWallNorthBase = CreateCube()
@@ -179,7 +179,7 @@ Function CreateCell.Cell(x,y,f,ct$)
 End Function
 
 Function RndCell.Cell(x,y,e)
-	a = Rnd(0,2)
+	a = Rnd(1,3)
 	t = 0
 	c.Cell = New Cell
 	
@@ -275,7 +275,7 @@ Function ShowCell.Cell(c.Cell)
 	ShowEntity c\cc
 End Function
 
-Function HideCell.Cell(c.Cell)
+Function DeleteCell.Cell(c.Cell)
 	If c\n = 1 Then HideEntity c\wn
 	If c\s = 1 Then HideEntity c\ws
 	If c\e = 1 Then HideEntity c\we
@@ -288,4 +288,17 @@ Function HideCell.Cell(c.Cell)
 
 	HideEntity c\cf
 	HideEntity c\cc
+
+	FreeEntity c\wn
+	FreeEntity c\ws
+	FreeEntity c\we 
+	FreeEntity c\ww
+	
+	FreeEntity c\cne
+	FreeEntity c\cnw
+	FreeEntity c\csw
+	FreeEntity c\cse
+
+	FreeEntity c\cf
+	FreeEntity c\cc
 End Function
