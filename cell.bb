@@ -179,7 +179,7 @@ Function CreateCell.Cell(x,y,f,ct$)
 End Function
 
 Function RndCell.Cell(x,y,e)
-	a = Rnd(0,2)
+	a = Rnd(1,3)
 	t = 0
 	c.Cell = New Cell
 	

@@ -249,9 +249,9 @@ Function RndCell.Cell(x,y,e)
 	PositionEntity(c\ww,x*s-2.7,2.7,y*s)
 	
 	PositionEntity(c\cne,x*s+2.7,2.7,y*s+2.7)
-	PositionEntity(c\cnw,x*s-2.7,2.7,y*s-2.7)
+	PositionEntity(c\cse,x*s-2.7,2.7,y*s-2.7)
 	PositionEntity(c\csw,x*s+2.7,2.7,y*s-2.7)
-	PositionEntity(c\cse,x*s-2.7,2.7,y*s+2.7)
+	PositionEntity(c\cnw,x*s-2.7,2.7,y*s+2.7)
 			
 	PositionEntity(c\cf,x*sf,0,y*sf)
 	PositionEntity(c\cc,x*sf,5.4,y*sf)

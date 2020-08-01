@@ -1,10 +1,6 @@
 Print("Metaphobia v0.0.2 - Deep Winter Studios")
-Print("Fullscreen? y/n ")
-fs = "n"
-fs = Input()
-full = 2
-If fs Then full = 1 Else fs = 2
-Graphics3D 1600,900,16,full
+Input("Press enter to start.")
+Graphics3D 1920,1080,32,1
 HidePointer 
 SetBuffer BackBuffer()
 AmbientLight 0,0,0
@@ -122,7 +118,7 @@ EntityTexture compass,CompassTex
 ScaleEntity compass,2.7,2.7,0.1
 PositionEntity(compass,-12,0,-12)
 
-PositionEntity player,Rnd(128,768),3,Rnd(128/5.4,768/5.4)
+PositionEntity player,1382+5.4,3,1382+5.4
 UpdatePlayerCellPosition()
 
 LoadChunk()
