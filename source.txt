@@ -1,0 +1,446 @@
+;Metaphobia, a game about an infinitly changing maze. Version - 0.0.1
+Graphics3D 800,600,16,2
+HidePointer 
+SetBuffer BackBuffer()
+AmbientLight 0,0,0
+Print("Loading...")
+
+
+Include "player.bb"
+Include "cell.bb"
+
+SeedRnd MilliSecs()
+
+;GLOBAL VARIABLES
+Global player = CreatePivot()
+Global camera = CreateCamera(player)
+Global flashlight = CreateLight(2,player)
+
+Global pcx%
+Global pcy%
+Global pmn,pme,pms,pmw
+
+Global PLAY_COLL = 2
+
+Const scale_x# = 2.7
+Const scale_y# = 2.7
+Const scale_z# = 0.1
+
+Const map_size_x = 512
+Const map_size_y = 512
+
+Const max_draw_x = 12
+Const max_draw_y = 12
+
+;DEBUG STUFF
+Global CompassTex = LoadTexture("Textures/compass.bmp")
+Global NWT = LoadTexture("Textures/northwall.bmp")
+Global SWT = LoadTexture("Textures/southwall.bmp")
+Global EWT = LoadTexture("Textures/eastwall.bmp")
+Global WWT = LoadTexture("Textures/westwall.bmp")
+
+Global Cell Dim mainmap.Cell(map_size_x+1,map_size_y+1) ;Maze array
+
+Function LoadChunk()
+	
+	minx = pcx-max_draw_x
+	miny = pcy-max_draw_y
+
+	maxx = pcx+max_draw_x
+	maxy = pcy+max_draw_y
+	
+	For i = minx To maxx Step 1
+		For j = miny To maxy Step 1
+			If i > 0 And j > 0
+				If mainmap(i,j) = Null Then mainmap(i,j) = RndCell(i,j,Rnd(1,4))
+				ShowCell(mainmap(i,j))
+			EndIf	
+		Next
+	Next
+
+End Function
+
+Function DeloadChunk()
+	minx = pcx-max_draw_x
+	miny = pcy-max_draw_y
+
+	maxx = pcx+max_draw_x
+	maxy = pcy+max_draw_y
+	
+	For i = 0 To map_size_x Step 1
+		For j = 0 To map_size_y Step 1
+
+			If i > 0 And j > 0
+			If i < minx And mainmap(i,j) <> Null
+			 	HideCell(mainmap(i,j))
+				mainmap(i,j)\is = 0
+				Delete(mainmap(i,j))
+			EndIf
+			If j < miny And mainmap(i,j) <> Null
+			 	HideCell(mainmap(i,j))
+				mainmap(i,j)\is = 0
+				Delete(mainmap(i,j))
+			EndIf
+			If i > maxx And mainmap(i,j) <> Null
+			 	HideCell(mainmap(i,j))
+				mainmap(i,j)\is = 0
+				Delete(mainmap(i,j))
+			EndIf
+			If j > maxy And mainmap(i,j) <> Null
+			 	HideCell(mainmap(i,j))
+				mainmap(i,j)\is = 0
+				Delete(mainmap(i,j))
+			EndIf
+			EndIf
+		Next
+	Next
+
+End Function
+
+Function UpdatePlayerCellPosition()
+	ux% = Floor(EntityX(player) / 5.4)
+	uy% = Floor(EntityZ(player) / 5.4)
+
+	pcx = ux
+	pcy = uy
+End Function
+
+
+
+LightRange flashlight,8
+LightConeAngles flashlight,0,90
+EntityType player,PLAY_COLL
+
+Global compass = CreateCube()
+RotateEntity compass,90,0,0
+EntityTexture compass,CompassTex
+ScaleEntity compass,2.7,2.7,0.1
+PositionEntity(compass,-12,0,-12)
+
+PositionEntity player,Rnd(128,768),3,Rnd(128,768)
+UpdatePlayerCellPosition()
+
+LoadChunk()
+DeloadChunk()
+Collisions(PLAY_COLL,WALL_COLL,2,2)
+;Input("Loading completed.")
+
+While Not KeyHit(1)
+	UpdatePlayerCellPosition()
+	LoadChunk()
+	DeloadChunk()
+	
+	TurnCamera(camera,player,0.1)
+	ControlPlayer(player)
+
+	UpdateWorld
+	RenderWorld
+	Flip
+
+Wend
+End
+
+;Cell used for creation of mazes;
+Type Cell
+Field cellType$ ;String to determine what type of cell it is and in turn what mesh to use
+Field wn, ws, we, ww;Differemt Cell wall meshes
+Field n,s,e,w ;Different Cell openings (entities)
+Field x,y ;Cell position
+Field cf ;Cell floor entity
+Field cc ;Cell ceiling entity
+Field is = 0; Is.
+End Type
+
+;COLLIDER VARIABLES
+Global WALL_COLL = 1
+
+;TEXTURE VARIABLES
+Global WallTex = LoadTexture("Textures/wallpaper.jpg")
+Global FloorTex = LoadTexture("Textures/carpet.jpg")
+Global CeilingTex = LoadTexture("Textures/ceiling.jpg")
+
+;MESH VARIABLES
+Global cellWallNorthBase = CreateCube()
+ScaleEntity cellWallNorthBase,scale_x,scale_Y,scale_z
+EntityTexture cellWallNorthBase,WallTex
+PositionEntity(CellWallNorthBase,0,0,0)
+EntityType cellWallNorthBase,WALL_COLL
+HideEntity cellWallNorthBase
+
+Global cellWallEastBase = CreateCube()
+RotateEntity cellWallEastBase,0,90,0
+EntityTexture cellWallEastBase,WallTex
+ScaleEntity cellWallEastBase,scale_x,scale_Y,scale_z
+PositionEntity(CellWallEastBase,0,0,0)
+EntityType cellWallEastBase,WALL_COLL
+HideEntity cellWallEastBase
+
+Global cellWallWestBase = CreateCube()
+RotateEntity cellWallWestBase,0,-90,0
+EntityTexture cellWallWestBase,WallTex
+ScaleEntity cellWallWestBase,scale_x,scale_Y,scale_z
+PositionEntity(CellWallWestBase,0,0,0)
+EntityType cellWallWestBase,WALL_COLL
+HideEntity cellWallWestBase
+
+Global cellWallSouthBase = CreateCube()
+RotateEntity cellWallSouthBase,0,180,0
+EntityTexture cellWallSouthBase,WallTex
+ScaleEntity cellWallSouthBase,scale_x,scale_Y,scale_z
+PositionEntity(CellWallSouthBase,0,0,0)
+EntityType cellWallSouthBase,WALL_COLL
+HideEntity cellWallSouthBase
+
+Global cellFloorBase = CreateCube()
+RotateEntity cellFloorBase,90,0,0
+EntityTexture cellFloorBase,FloorTex
+ScaleEntity cellFloorBase,2.7,2.7,0.1
+PositionEntity(CellFloorBase,0,0,0)
+HideEntity cellFloorBase
+
+Global cellCeilingBase = CreateCube()
+RotateEntity cellCeilingBase,90,0,0
+EntityTexture cellCeilingBase,CeilingTex
+ScaleEntity cellCeilingBase,2.7,2.7,0.1
+PositionEntity(CellCeilingBase,0,0,0)
+HideEntity cellCeilingBase
+
+Function CreateCell.Cell(x,y,f,ct$)
+	
+	c.Cell = New Cell
+	c\cellType = ct
+	c\n = 1
+	c\s = 1
+	c\e = 1
+	c\w = 1
+
+	c\wn = CopyEntity(cellWallNorthBase)
+	c\ws = CopyEntity(cellWallSouthBase)
+	c\we = CopyEntity(cellWallEastBase)
+	c\ww = CopyEntity(cellWallWestBase)
+	
+	c\cf = CopyEntity(CellFloorBase)
+
+	c\x = x
+	c\y = y
+
+	HideEntity c\wn
+	HideEntity c\ws
+	HideEntity c\we
+	HideEntity c\ww
+
+ 	If ct = "Four" Then 
+		c\n = 0
+		c\s = 0
+		c\e = 0
+		c\w = 0
+		Return c
+	EndIf
+
+	If f = 1
+		If ct = "Three"
+			c\s = 0
+			c\e = 0
+			c\w = 0
+		EndIf
+		If ct = "Turn"
+			c\s = 0
+			c\e = 0
+		EndIf 
+		If ct = "Straight"
+			c\n = 0
+			c\s = 0
+		EndIf
+	EndIf
+
+	If f = 2
+		If ct = "Three"
+			c\n = 0
+			c\e = 0
+			c\w = 0
+		EndIf
+		If ct = "Turn"
+			c\s = 0
+			c\w = 0
+		EndIf 
+		If ct = "Straight"
+			c\e = 0
+			c\w = 0
+		EndIf
+	EndIf
+
+	If f = 3
+		If ct = "Three"
+			c\s = 0
+			c\n = 0
+			c\e = 0
+		EndIf
+		If ct = "Turn"
+			c\n = 0
+			c\e = 0
+		EndIf 
+	EndIf
+
+	If f = 4
+		If ct = "Three"
+			c\s = 0
+			c\n = 0
+			c\w = 0
+		EndIf
+		If ct = "Turn"
+			c\n = 0
+			c\w = 0
+		EndIf 
+	EndIf
+
+	s = 3
+
+	PositionEntity(c\wn,x*s,0,y*s)
+	PositionEntity(c\ws,x*s,0,y*s)
+	PositionEntity(c\we,x*s,0,y*s)
+	PositionEntity(c\ww,x*s,0,y*s)
+			
+	PositionEntity(c\cf,x*s,10,y*s-2.70)			
+
+	If c\n = 1 Then ShowEntity c\wn
+	If c\s = 1 Then ShowEntity c\ws
+	If c\e = 1 Then ShowEntity c\we
+	If c\w = 1 Then ShowEntity c\ww
+
+
+	Return c
+End Function
+
+Function RndCell.Cell(x,y,e)
+	a = Rnd(0,2)
+	t = 0
+	c.Cell = New Cell
+	
+	c\n = 0
+	c\s = 0
+	c\e = 0
+	c\w = 0	
+
+	c\wn = CopyEntity(cellWallNorthBase)
+	c\ws = CopyEntity(cellWallSouthBase)
+	c\we = CopyEntity(cellWallEastBase)
+	c\ww = CopyEntity(cellWallWestBase)
+	c\cf = CopyEntity(CellFloorBase)
+	HideEntity(c\cf)
+
+	c\cc = CopyEntity(CellCeilingBase)
+	HideEntity(c\cc)
+
+	c\x = x
+	c\y = y
+
+	HideEntity c\wn
+	HideEntity c\ws
+	HideEntity c\we
+	HideEntity c\ww
+
+	For i = 1 To a Step 1
+	t = Rnd(1,4)
+	If t = 1 Then c\n = 1
+	If t = 2 Then c\e = 1
+	If t = 3 Then c\s = 1
+	If t = 4 Then c\w = 1 
+	Next
+
+	If e = 1 Then c\n = 0
+	If e = 2 Then c\e = 0
+	If e = 3 Then c\s = 0
+	If e = 4 Then c\w = 0
+	
+	s# = 5.40
+	sf# = 5.40
+
+	PositionEntity(c\wn,x*s,2.7,y*s+2.7)
+	PositionEntity(c\ws,x*s,2.7,y*s-2.7)
+	PositionEntity(c\we,x*s+2.7,2.7,y*s)
+	PositionEntity(c\ww,x*s-2.7,2.7,y*s)			
+	PositionEntity(c\cf,x*sf,0,y*sf)
+	PositionEntity(c\cc,x*sf,5.4,y*sf)
+	
+	is = 1
+	Return c
+End Function
+
+Function ShowCell.Cell(c.Cell)
+	If c\n = 1 Then ShowEntity c\wn
+	If c\s = 1 Then ShowEntity c\ws
+	If c\e = 1 Then ShowEntity c\we
+	If c\w = 1 Then ShowEntity c\ww
+	ShowEntity c\cf
+	ShowEntity c\cc
+End Function
+
+Function HideCell.Cell(c.Cell)
+	If c\n = 1 Then HideEntity c\wn
+	If c\s = 1 Then HideEntity c\ws
+	If c\e = 1 Then HideEntity c\we
+	If c\w = 1 Then HideEntity c\ww
+	HideEntity c\cf
+	HideEntity c\cc
+End Function
+
+Function TurnCamera(camera,pivot,speed_multiplier#=1)
+	TurnEntity pivot,0,-MouseXSpeed()*speed_multiplier,0
+	TurnEntity camera,MouseYSpeed()*speed_multiplier,0,0
+	RotateEntity camera,EntityPitch(camera),0,0
+	
+	If Not KeyDown(57) MoveMouse GraphicsWidth()/2,GraphicsHeight()/2
+End Function
+
+Function ControlPlayer(player)
+
+;;Do we really need the ability to jump?
+
+;	If KeyHit(57) And is_Jumping = False Then ;Jumping
+;		is_Jumping = True
+;		jumptime = 48
+;	EndIf
+;	
+;	If is_Jumping = True And is_Jumping > 0 Then
+;			If jumptime <= 16 Then 
+;				MoveEntity(player,0,0.06,0) 
+;			Else 
+;				MoveEntity(player,0,0.09,0) 
+;			EndIf
+;		jumptime = jumptime - 1
+;	EndIf
+;
+;	If jumptime = 0 Then
+;		is_Jumping = False
+;	EndIf
+		
+	If KeyDown(42) And stamina > 0 Then ; Sprinting
+
+	If KeyDown(17) MoveEntity(player,0,0,0.06) ;Sprint Forward
+	If KeyDown(31) MoveEntity(player,0,0,-0.06) ;Sprint Backward
+
+	If KeyDown(32) MoveEntity(player,0.06,0,0) ;Sprint Right
+	If KeyDown(30) MoveEntity(player,-0.06,0,0) ;Sprint Left
+
+	is_Sprinting = True
+
+	Else
+
+	If KeyDown(17) MoveEntity(player,0,0,0.06) ;Walk Forward
+	If KeyDown(31) MoveEntity(player,0,0,-0.06) ;Walk Backward
+
+	If KeyDown(32) MoveEntity(player,0.06,0,0) ;Walk Right
+	If KeyDown(30) MoveEntity(player,-0.06,0,0) ;Walk Left
+
+	is_Sprinting = False
+
+	EndIf
+
+	If is_Sprinting = True 
+		stamina=stamina-1
+	ElseIf stamina = 0 And sprinting = True Then
+		stamina=stamina-2
+	ElseIf stamina < 100 And sprinting = False Then
+		stamina=stamina+1
+	EndIf
+End Function
