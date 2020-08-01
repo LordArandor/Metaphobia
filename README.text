@@ -10,4 +10,5 @@ Features:
 
 Bugs:
  Fullscreen now works too well. Sorry :/
- Rarely, you will spawn in a 2x2 square. 
+ Occasionally you will spawn in a 2x2 square. 
+ Occasionally you will spawn inside a wall, and it will force you partially underneath the world.
