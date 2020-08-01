@@ -3,7 +3,7 @@ Input("Press enter to start.")
 Graphics3D 1920,1080,32,1
 HidePointer 
 SetBuffer BackBuffer()
-AmbientLight 5,5,5
+AmbientLight 6,6,6
 Print("Loading...")
 
 
@@ -17,7 +17,6 @@ Global player = CreatePivot()
 ScaleEntity player,0.1,0.1,0.1
 Global camera = CreateCamera(player)
 Global flashlight = CreateLight(2,player)
-Global on = 0
 
 Global pcx%
 Global pcy%
@@ -37,10 +36,6 @@ Const max_draw_y = 6
 
 ;DEBUG STUFF
 Global CompassTex = LoadTexture("Textures/compass.bmp")
-Global NWT = LoadTexture("Textures/northwall.bmp")
-Global SWT = LoadTexture("Textures/southwall.bmp")
-Global EWT = LoadTexture("Textures/eastwall.bmp")
-Global WWT = LoadTexture("Textures/westwall.bmp")
 
 Global Cell Dim mainmap.Cell(map_size_x+1,map_size_y+1) ;Maze array
 
@@ -131,7 +126,7 @@ End Function
 
 
 
-LightRange flashlight,12
+LightRange flashlight,0
 LightConeAngles flashlight,0,80
 LightColor flashlight,255,183,76
 EntityType player,PLAY_COLL
@@ -141,7 +136,6 @@ RotateEntity compass,90,0,0
 EntityTexture compass,CompassTex
 ScaleEntity compass,2.7,2.7,0.1
 PositionEntity(compass,-12,0,-12)
-
 
 px = Floor(Rnd(1381,2764)/5.4)
 py = Floor(Rnd(1381,2764)/5.4)
@@ -157,7 +151,7 @@ Collisions(PLAY_COLL,WALL_COLL,2,2)
 fpsTimer = 0 
 fps = 0
 fpsTicks = 0
-
+Global on = 0
 While Not KeyHit(1)
 	UpdatePlayerCellPosition()
 	LoadChunk()
@@ -179,7 +173,9 @@ EndIf
 
 	UpdateWorld
 	RenderWorld
-		Text 5,5,"fps: "+fps
+		Text 6,6,fps
+		Text 6,24,pcx
+		Text 6,36,pcy
 	Flip
 
 Wend

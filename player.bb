@@ -60,18 +60,19 @@ Function ControlPlayer(player)
 End Function
 
 Function Flashlight()
-	
-	If KeyHit(33) And on = 0
-	on = 1
-	LightRange flashlight,24
-	;Print("Flashlight on")
-	EndIf
  
-	If KeyHit(33) And on = 1
+	p = 0
+
+	If KeyHit(33)
+	If on = 0 And p = 0
+	on = 1
+	LightRange flashlight,6
+	p = 1
+	EndIf
+	If on = 1 And p = 0
 	on = 0
 	LightRange flashlight,0
-	;Print("Flashlight off")
+	p = 1
 	EndIf
-
-	;Print (on)
+	EndIf 
 End Function
