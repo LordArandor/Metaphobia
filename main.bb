@@ -14,6 +14,7 @@ SeedRnd MilliSecs()
 
 ;GLOBAL VARIABLES
 Global player = CreatePivot()
+ScaleEntity player,0.1,0.1,0.1
 Global camera = CreateCamera(player)
 Global flashlight = CreateLight(2,player)
 
@@ -30,8 +31,8 @@ Const scale_z# = 0.1
 Const map_size_x = 512
 Const map_size_y = 512
 
-Const max_draw_x = 12
-Const max_draw_y = 12
+Const max_draw_x = 6
+Const max_draw_y = 6
 
 ;DEBUG STUFF
 Global CompassTex = LoadTexture("Textures/compass.bmp")
@@ -54,6 +55,27 @@ Function LoadChunk()
 		For j = miny To maxy Step 1
 			If i > 0 And j > 0
 				If mainmap(i,j) = Null Then mainmap(i,j) = RndCell(i,j,Rnd(1,4))
+				ShowCell(mainmap(i,j))
+			EndIf	
+		Next
+	Next
+
+End Function
+
+Function ReloadChunk()
+	
+	minx = pcx-max_draw_x
+	miny = pcy-max_draw_y
+
+	maxx = pcx+max_draw_x
+	maxy = pcy+max_draw_y
+	
+	For i = minx To maxx Step 1
+		For j = miny To maxy Step 1
+			If i > 0 And j > 0
+				HideCell(mainmap(i,j))
+				Delete(mainmap(i,j))
+				mainmap(i,j) = RndCell(i,j,Rnd(1,4))
 				ShowCell(mainmap(i,j))
 			EndIf	
 		Next
@@ -108,7 +130,7 @@ End Function
 
 
 
-LightRange flashlight,6
+LightRange flashlight,24
 LightConeAngles flashlight,0,80
 EntityType player,PLAY_COLL
 
@@ -118,7 +140,7 @@ EntityTexture compass,CompassTex
 ScaleEntity compass,2.7,2.7,0.1
 PositionEntity(compass,-12,0,-12)
 
-PositionEntity player,1382+5.4,3,1382+5.4
+PositionEntity player,1382+5,3,1382+5
 UpdatePlayerCellPosition()
 
 LoadChunk()
@@ -133,6 +155,8 @@ While Not KeyHit(1)
 	
 	TurnCamera(camera,player,0.1)
 	ControlPlayer(player)
+
+	If KeyHit(19) Then ReloadChunk()
 
 	UpdateWorld
 	RenderWorld
