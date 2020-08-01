@@ -58,3 +58,20 @@ Function ControlPlayer(player)
 		stamina=stamina+1
 	EndIf
 End Function
+
+Function Flashlight()
+	
+	If KeyHit(33) And on = 0
+	on = 1
+	LightRange flashlight,24
+	;Print("Flashlight on")
+	EndIf
+ 
+	If KeyHit(33) And on = 1
+	on = 0
+	LightRange flashlight,0
+	;Print("Flashlight off")
+	EndIf
+
+	;Print (on)
+End Function

@@ -1,9 +1,9 @@
-Print("Metaphobia v0.0.2 - Deep Winter Studios")
+Print("Metaphobia v0.0.3 - Deep Winter Studios")
 Input("Press enter to start.")
 Graphics3D 1920,1080,32,1
 HidePointer 
 SetBuffer BackBuffer()
-AmbientLight 0,0,0
+AmbientLight 5,5,5
 Print("Loading...")
 
 
@@ -17,6 +17,7 @@ Global player = CreatePivot()
 ScaleEntity player,0.1,0.1,0.1
 Global camera = CreateCamera(player)
 Global flashlight = CreateLight(2,player)
+Global on = 0
 
 Global pcx%
 Global pcy%
@@ -130,8 +131,9 @@ End Function
 
 
 
-LightRange flashlight,24
+LightRange flashlight,12
 LightConeAngles flashlight,0,80
+LightColor flashlight,255,183,76
 EntityType player,PLAY_COLL
 
 Global compass = CreateCube()
@@ -158,6 +160,7 @@ While Not KeyHit(1)
 	DeloadChunk()
 	
 	TurnCamera(camera,player,0.1)
+	Flashlight()
 	ControlPlayer(player)
 
 	If KeyHit(19) Then ReloadChunk()
