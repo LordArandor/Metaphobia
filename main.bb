@@ -140,7 +140,11 @@ EntityTexture compass,CompassTex
 ScaleEntity compass,2.7,2.7,0.1
 PositionEntity(compass,-12,0,-12)
 
-PositionEntity player,1382+5,3,1382+5
+
+px = Floor(Rnd(1381,2764)/5.4)
+py = Floor(Rnd(1381,2764)/5.4)
+
+PositionEntity player,px,3,py
 UpdatePlayerCellPosition()
 
 LoadChunk()

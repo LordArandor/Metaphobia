@@ -11,5 +11,4 @@ Features:
 
 Bugs:
  Fullscreen now works too well. Sorry :/
- Occasionally you will spawn in a 2x2 square. 
- Occasionally you will spawn inside a wall, and it will force you partially underneath the world.
+ Occasionally you will spawn in a 2x2 square. Press R to reload the chunk in order to escape.
