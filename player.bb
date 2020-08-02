@@ -66,7 +66,7 @@ Function Flashlight()
 	If KeyHit(33)
 	If on = 0 And p = 0
 	on = 1
-	LightRange flashlight,6
+	LightRange flashlight,12
 	p = 1
 	EndIf
 	If on = 1 And p = 0

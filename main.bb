@@ -1,5 +1,5 @@
 Print("Metaphobia v0.0.3 - Deep Winter Studios")
-Input("Press enter to start.")
+Input("Press Enter to start.")
 Graphics3D 1920,1080,32,1
 HidePointer 
 SetBuffer BackBuffer()
@@ -129,6 +129,12 @@ End Function
 LightRange flashlight,0
 LightConeAngles flashlight,0,80
 LightColor flashlight,255,183,76
+
+CameraFogMode camera,1
+CameraFogRange camera,max_draw_x*36,max_draw_x*54
+CameraFogColor camera,10,7,3
+CameraClsColor camera,10,7,3
+
 EntityType player,PLAY_COLL
 
 Global compass = CreateCube()
@@ -176,6 +182,8 @@ EndIf
 		Text 6,6,fps
 		Text 6,24,pcx
 		Text 6,36,pcy
+		Text 6,54,EntityX(player)
+		Text 6,66,EntityZ(player)
 	Flip
 
 Wend
