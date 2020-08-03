@@ -239,7 +239,7 @@ Function RndCell.Cell(x,y,e)
 	
 	c\ctable.Table = New Table
 
-	r = Rnd(1,6)
+	r = Rnd(1,12)
 	If r < a-1 
 		c\ctable = RndTable(c\x,c\y)
 		c\ntable = 1

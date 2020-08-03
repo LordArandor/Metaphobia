@@ -1,4 +1,5 @@
-Print("Metaphobia v0.0.4 - Deep Winter Studios")
+Print("Metaphobia v0.0.5 - Deep Winter Studios")
+.start
 Input("Press Enter to start.")
 Graphics3D 1920,1080,32,1
 HidePointer 
@@ -19,8 +20,11 @@ ScaleEntity player,0.1,0.1,0.1
 Global camera = CreateCamera(player)
 Global flashlight = CreateLight(2,player)
 
-Global sanity = 120
+Global sanity = 600
+Global battery = 1200
+
 Global flashlight_state = 0
+Global fs_dead = 0
 
 Global pcx%
 Global pcy%
@@ -71,7 +75,7 @@ Function ReloadChunk()
 
 	maxx = pcx+max_draw_x
 	maxy = pcy+max_draw_y
-	
+
 	r = Rnd(1,4)
 	For i = minx To maxx Step 1
 		For j = miny To maxy Step 1
@@ -80,6 +84,7 @@ Function ReloadChunk()
 				Delete(mainmap(i,j))
 				mainmap(i,j) = RndCell(i,j,r)
 				ShowCell(mainmap(i,j))
+				sanity = sanity - Rnd(1,2)
 			EndIf	
 		Next
 	Next   
@@ -131,12 +136,37 @@ Function UpdatePlayerCellPosition()
 	pcy = uy
 End Function
 
-;Function SanityCheck(sanity,lamp);
-;	
-;	If 
-;
-;	Return santiy 
-;End Function
+Function StatusCheck()
+	p = 0
+
+	If KeyHit(33)
+		If flashlight_state = 0 And fs_dead = 0 And p = 0
+		flashlight_state = 1
+		LightRange flashlight,24
+		p = 1
+	EndIf
+
+	If flashlight_state = 1 Or battery = 0 And p = 0
+		flashlight_state = 0
+		LightRange flashlight,0
+		p = 1
+	EndIf
+	EndIf 
+
+	If flashlight_state = 1 
+		battery = battery - 1
+		If sanity < 600 Then sanity = sanity + 1
+	EndIf
+
+	If flashlight_state = 0
+		sanity = sanity - Rnd(1,3)
+		If battery < 1200 Then battery = battery + 1
+	EndIf 
+
+	If battery = 0 Then fs_dead = 1
+	If battery = 600 Then fs_dead = 0
+
+End Function
 
 LightRange flashlight,0
 LightConeAngles flashlight,0,80
@@ -170,33 +200,38 @@ Collisions(PLAY_COLL,WALL_COLL,2,2)
 fpsTimer = 0 
 fps = 0
 fpsTicks = 0
-While Not KeyHit(1)
+While Not KeyHit(1) Or sanity = 0
 	UpdatePlayerCellPosition()
 	LoadChunk()
 	DeloadChunk()
 	
+	r = Rnd(500,1500)
+	If MilliSecs() - fpsTimer > r Then StatusCheck()
+
 	TurnCamera(camera,player,0.2)
-	flashlight_state = Flashlight(flashlight_state)
 	ControlPlayer(player)
 
 	If (MilliSecs() - fpsTimer > 1000)
-	fpsTimer = MilliSecs()
-	fps = fpsTicks
-	fpsTicks = 0
-Else
-	fpsTicks = fpsTicks + 1
-EndIf
+		fpsTimer = MilliSecs()
+		fps = fpsTicks
+		fpsTicks = 0
+	Else
+		fpsTicks = fpsTicks + 1
+	EndIf
 
 	If KeyHit(19) Then ReloadChunk()
 
 	UpdateWorld
 	RenderWorld
 		Text 6,6,fps
-		Text 6,24,pcx
-		Text 6,36,pcy
-		Text 6,54,EntityX(player)
-		Text 6,66,EntityZ(player)
+		Text 6,24, "Sanity: " + Floor(sanity / 10)
+		Text 6,36, "Battery: " + Floor(battery / 10)
+		;Text 6,24,pcx
+		;Text 6,36,pcy
+		;Text 6,54,EntityX(player)
+		;Text 6,66,EntityZ(player)
 	Flip
 
 Wend
+
 End

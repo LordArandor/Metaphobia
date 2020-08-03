@@ -55,7 +55,7 @@ Function RndLamp.Lamp(x,y,f)
 	EndIf
 
 	l\light = CreateLight(2,l\mesh)
-	LightRange l\light,6
+	LightRange l\light,2
 	LightColor l\light,255,183,76
 	ScaleEntity l\light,0.5,0.5,0.5
 

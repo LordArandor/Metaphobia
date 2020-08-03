@@ -58,23 +58,3 @@ Function ControlPlayer(player)
 		stamina=stamina+1
 	EndIf
 End Function
-
-Function Flashlight(on)
- 
-	p = 0
-
-	If KeyHit(33)
-	If on = 0 And p = 0
-	on = 1
-	LightRange flashlight,24
-	p = 1
-	EndIf
-	If on = 1 And p = 0
-	on = 0
-	LightRange flashlight,0
-	p = 1
-	EndIf
-	EndIf 
-
-	Return on
-End Function
