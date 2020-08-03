@@ -4,7 +4,9 @@ Field cellType$ ;String to determine what type of cell it is and in turn what me
 Field wn, ws, we, ww;Differemt Cell wall meshes
 Field cnw, cne, csw, cse;Different Cell corner meshes
 Field n,s,e,w ;Different Cell walls
-Field cnnw, cnne, cnsw, cnse
+Field cnnw, cnne, cnsw, cnse ;Different Cell corners
+Field ctable.Table;Table entity
+Field ntable;Possible Table
 Field x,y ;Cell position
 Field cf ;Cell floor entity
 Field cc ;Cell ceiling entity
@@ -235,6 +237,14 @@ Function RndCell.Cell(x,y,e)
 	If e = 3 Then c\s = 0
 	If e = 4 Then c\w = 0
 	
+	c\ctable.Table = New Table
+
+	r = Rnd(1,6)
+	If r < a-1 
+		c\ctable = RndTable(c\x,c\y)
+		c\ntable = 1
+	EndIf
+
 	s# = 5.40
 	sf# = 5.40
 
@@ -288,6 +298,11 @@ Function DeleteCell.Cell(c.Cell)
 
 	HideEntity c\cf
 	HideEntity c\cc
+
+	If c\ntable = 1 
+		DeleteTable(c\ctable)
+		Delete c\ctable
+	EndIf
 
 	FreeEntity c\wn
 	FreeEntity c\ws

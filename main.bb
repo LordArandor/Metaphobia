@@ -1,4 +1,4 @@
-Print("Metaphobia v0.0.3 - Deep Winter Studios")
+Print("Metaphobia v0.0.4 - Deep Winter Studios")
 Input("Press Enter to start.")
 Graphics3D 1920,1080,32,1
 HidePointer 
@@ -9,6 +9,7 @@ Print("Loading...")
 
 Include "player.bb"
 Include "cell.bb"
+Include "object.bb"
 
 SeedRnd MilliSecs()
 
@@ -17,6 +18,9 @@ Global player = CreatePivot()
 ScaleEntity player,0.1,0.1,0.1
 Global camera = CreateCamera(player)
 Global flashlight = CreateLight(2,player)
+
+Global sanity = 120
+Global flashlight_state = 0
 
 Global pcx%
 Global pcy%
@@ -31,8 +35,8 @@ Const scale_z# = 0.1
 Const map_size_x = 512
 Const map_size_y = 512
 
-Const max_draw_x = 6
-Const max_draw_y = 6
+Const max_draw_x = 4
+Const max_draw_y = 4
 
 ;DEBUG STUFF
 Global CompassTex = LoadTexture("Textures/compass.bmp")
@@ -46,11 +50,13 @@ Function LoadChunk()
 
 	maxx = pcx+max_draw_x
 	maxy = pcy+max_draw_y
-	
+
+	r = Rnd(1,4)
+
 	For i = minx To maxx Step 1
 		For j = miny To maxy Step 1
 			If i > 0 And j > 0
-				If mainmap(i,j) = Null Then mainmap(i,j) = RndCell(i,j,Rnd(1,4))
+				If mainmap(i,j) = Null Then mainmap(i,j) = RndCell(i,j,r)
 				ShowCell(mainmap(i,j))
 			EndIf	
 		Next
@@ -66,16 +72,17 @@ Function ReloadChunk()
 	maxx = pcx+max_draw_x
 	maxy = pcy+max_draw_y
 	
+	r = Rnd(1,4)
 	For i = minx To maxx Step 1
 		For j = miny To maxy Step 1
 			If i > 0 And j > 0
 				DeleteCell(mainmap(i,j))
 				Delete(mainmap(i,j))
-				mainmap(i,j) = RndCell(i,j,Rnd(1,4))
+				mainmap(i,j) = RndCell(i,j,r)
 				ShowCell(mainmap(i,j))
 			EndIf	
 		Next
-	Next
+	Next   
 
 End Function
 
@@ -124,14 +131,19 @@ Function UpdatePlayerCellPosition()
 	pcy = uy
 End Function
 
-
+;Function SanityCheck(sanity,lamp);
+;	
+;	If 
+;
+;	Return santiy 
+;End Function
 
 LightRange flashlight,0
 LightConeAngles flashlight,0,80
 LightColor flashlight,255,183,76
 
 CameraFogMode camera,1
-CameraFogRange camera,max_draw_x*36,max_draw_x*54
+CameraFogRange camera,max_draw_x*36,max_draw_x*52
 CameraFogColor camera,10,7,3
 CameraClsColor camera,10,7,3
 
@@ -143,10 +155,11 @@ EntityTexture compass,CompassTex
 ScaleEntity compass,2.7,2.7,0.1
 PositionEntity(compass,-12,0,-12)
 
-px = Floor(Rnd(1381,2764)/5.4)
+px = Floor(Rnd(1381,3000)/5.4)
 py = Floor(Rnd(1381,2764)/5.4)
 
 PositionEntity player,px,3,py
+
 UpdatePlayerCellPosition()
 
 LoadChunk()
@@ -157,14 +170,13 @@ Collisions(PLAY_COLL,WALL_COLL,2,2)
 fpsTimer = 0 
 fps = 0
 fpsTicks = 0
-Global on = 0
 While Not KeyHit(1)
 	UpdatePlayerCellPosition()
 	LoadChunk()
 	DeloadChunk()
 	
-	TurnCamera(camera,player,0.1)
-	Flashlight()
+	TurnCamera(camera,player,0.2)
+	flashlight_state = Flashlight(flashlight_state)
 	ControlPlayer(player)
 
 	If (MilliSecs() - fpsTimer > 1000)
@@ -175,7 +187,7 @@ Else
 	fpsTicks = fpsTicks + 1
 EndIf
 
-	If KeyDown(19) Then ReloadChunk()
+	If KeyHit(19) Then ReloadChunk()
 
 	UpdateWorld
 	RenderWorld

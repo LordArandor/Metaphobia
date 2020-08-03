@@ -59,14 +59,14 @@ Function ControlPlayer(player)
 	EndIf
 End Function
 
-Function Flashlight()
+Function Flashlight(on)
  
 	p = 0
 
 	If KeyHit(33)
 	If on = 0 And p = 0
 	on = 1
-	LightRange flashlight,12
+	LightRange flashlight,24
 	p = 1
 	EndIf
 	If on = 1 And p = 0
@@ -75,4 +75,6 @@ Function Flashlight()
 	p = 1
 	EndIf
 	EndIf 
+
+	Return on
 End Function
