@@ -163,7 +163,11 @@ Function StatusCheck()
 		If battery < 1200 Then battery = battery + 1
 	EndIf 
 
-	If battery = 0 Then fs_dead = 1
+	If battery = 0 
+		fs_dead = 1
+		flashlight_state = 0
+	EndIf
+
 	If battery = 600 Then fs_dead = 0
 
 End Function
