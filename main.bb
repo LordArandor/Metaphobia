@@ -1,7 +1,7 @@
 Print("Metaphobia v0.0.5 - Deep Winter Studios")
 .start
 Input("Press Enter to start.")
-Graphics3D 1920,1080,32,1
+Graphics3D 800,600,32,2
 HidePointer 
 SetBuffer BackBuffer()
 AmbientLight 6,6,6
@@ -15,13 +15,21 @@ Include "object.bb"
 SeedRnd MilliSecs()
 
 ;GLOBAL VARIABLES
+
+;PLAYER
 Global player = CreatePivot()
 ScaleEntity player,0.1,0.1,0.1
 Global camera = CreateCamera(player)
 Global flashlight = CreateLight(2,player)
 
+Global player_Height# = 3.2
+
 Global sanity = 600
 Global battery = 1200
+
+Global bob_dir = True
+Global bob_amt# = 0
+Global bob_add# = 0
 
 Global flashlight_state = 0
 Global fs_dead = 0
@@ -33,21 +41,46 @@ Global pmn,pme,pms,pmw
 
 Global PLAY_COLL = 2
 
+
+;SCALE
 Const scale_x# = 2.7
 Const scale_y# = 2.7
 Const scale_z# = 0.1
 
+
+;MAP
 Const map_size_x = 512
 Const map_size_y = 512
 
 Const max_draw_x = 4
 Const max_draw_y = 4
 
+
+
+
+;WATCHERS
+;  These are sprite based so instead of giving them their own file I put them here to avoid annoyances. Meh. Sue me. 
+
+Global watcher_max = 3
+Global Dim watchers(watcher_max)
+
+
+
+
+
+
 ;DEBUG STUFF
 Global CompassTex = LoadTexture("Textures/compass.bmp")
 
 Global Cell Dim mainmap.Cell(map_size_x+1,map_size_y+1) ;Maze array
 
+
+
+
+;CHUNK FUNCTIONS 
+
+
+;Create a chunk and load it in
 Function LoadChunk()
 	
 	minx = pcx-max_draw_x
@@ -69,6 +102,8 @@ Function LoadChunk()
 
 End Function
 
+
+;Reload the chunk around the player, costing sanity
 Function ReloadChunk()
 	
 	minx = pcx-max_draw_x
@@ -92,6 +127,8 @@ Function ReloadChunk()
 
 End Function
 
+
+;Delete the chunk around the player 
 Function DeloadChunk()
 	minx = pcx-max_draw_x
 	miny = pcy-max_draw_y
@@ -129,6 +166,8 @@ Function DeloadChunk()
 
 End Function
 
+
+;Update the player cell position, what it says on the tin. Turns the player's absolute, global pixel position to an easier cell-based one so I can easily base where to load chunks.
 Function UpdatePlayerCellPosition()
 	ux% = Floor(EntityX(player) / 5.4)
 	uy% = Floor(EntityZ(player) / 5.4)
@@ -137,6 +176,8 @@ Function UpdatePlayerCellPosition()
 	pcy = uy
 End Function
 
+
+;Controls the flashlight light. 
 Function FlashlightControl()
 	p = 0
 
@@ -155,6 +196,8 @@ Function FlashlightControl()
 	EndIf 
 End Function
 
+
+;Status check, checks if the player has battery and sanity. And isn't dead.
 Function StatusCheck()
 
 	If flashlight_state = 1 
@@ -182,41 +225,59 @@ Function StatusCheck()
 
 End Function
 
+
+;Flashlight variables 
 LightRange flashlight,0
 LightConeAngles flashlight,0,80
 LightColor flashlight,255,183,76
 
+
+;Camera variables. 
 CameraFogMode camera,1
 CameraFogRange camera,max_draw_x*36,max_draw_x*52
 CameraFogColor camera,10,7,3
 CameraClsColor camera,10,7,3
 
+
+;Player collider. We do need this.
 EntityType player,PLAY_COLL
 
+
+;Debug compass, unlikely you will see this but I'm leaving it in so if you do you can get a cookie. 
 Global compass = CreateCube()
 RotateEntity compass,90,0,0
 EntityTexture compass,CompassTex
 ScaleEntity compass,2.7,2.7,0.1
 PositionEntity(compass,-12,0,-12)
 
+
+;Randomly put the player somewhere
 px = Floor(Rnd(1381,3000)/5.4)
 py = Floor(Rnd(1381,2764)/5.4)
+PositionEntity player,px,player_Height,py
 
-PositionEntity player,px,3,py
-
+;Get the player's starting position
 UpdatePlayerCellPosition()
 
+
+;Actually load the starting chunks of the game
 LoadChunk()
 DeloadChunk()
 Collisions(PLAY_COLL,WALL_COLL,2,2)
 ;Input("Loading completed.")
 
+
+;Debug FPS stuff. I really should put this in the other debug category but am lazy and want to work on the Watchers. 
 fpsTimer = 0 
 fps = 0
 fpsTicks = 0
 
 
-While Not KeyHit(1) Or lost = 1
+
+;While not dead or scared, play the game.
+While Not KeyHit(1) Or lost = 1	
+
+	;Update the chunk around the player 
 	UpdatePlayerCellPosition()
 	LoadChunk()
 	DeloadChunk()
@@ -243,9 +304,11 @@ While Not KeyHit(1) Or lost = 1
 		Text 6,6,fps
 		Text 6,24, "Sanity: " + Floor(sanity / 10)
 		Text 6,36, "Battery: " + Floor(battery / 10)
-		Text 6,54,pcx
-		Text 6,66,pcy
-		Text 6,72,mainmap(pcx,pcy)\ntable
+
+
+		;Text 6,54,pcx
+		;Text 6,66,pcy
+		;Text 6,72,mainmap(pcx,pcy)\ntable
 	Flip
 
 Wend

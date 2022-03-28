@@ -1,4 +1,4 @@
-;Cell used for creation of mazes;
+ ;Cell used for creation of mazes;
 Type Cell
 Field cellType$ ;String to determine what type of cell it is and in turn what mesh to use
 Field wn, ws, we, ww;Differemt Cell wall meshes

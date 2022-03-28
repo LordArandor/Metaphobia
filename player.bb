@@ -8,53 +8,40 @@ End Function
 
 Function ControlPlayer(player)
 
-;;Do we really need the ability to jump?
-
-;	If KeyHit(57) And is_Jumping = False Then ;Jumping
-;		is_Jumping = True
-;		jumptime = 48
-;	EndIf
-;	
-;	If is_Jumping = True And is_Jumping > 0 Then
-;			If jumptime <= 16 Then 
-;				MoveEntity(player,0,0.06,0) 
-;			Else 
-;				MoveEntity(player,0,0.09,0) 
-;			EndIf
-;		jumptime = jumptime - 1
-;	EndIf
-;
-;	If jumptime = 0 Then
-;		is_Jumping = False
-;	EndIf
-		
-	If KeyDown(42) And stamina > 0 Then ; Sprinting
-
-	If KeyDown(17) MoveEntity(player,0,0,0.06) ;Sprint Forward
-	If KeyDown(31) MoveEntity(player,0,0,-0.06) ;Sprint Backward
-
-	If KeyDown(32) MoveEntity(player,0.06,0,0) ;Sprint Right
-	If KeyDown(30) MoveEntity(player,-0.06,0,0) ;Sprint Left
-
-	is_Sprinting = True
-
-	Else
-
-	If KeyDown(17) MoveEntity(player,0,0,0.06) ;Walk Forward
-	If KeyDown(31) MoveEntity(player,0,0,-0.06) ;Walk Backward
-
-	If KeyDown(32) MoveEntity(player,0.06,0,0) ;Walk Right
-	If KeyDown(30) MoveEntity(player,-0.06,0,0) ;Walk Left
-
-	is_Sprinting = False
-
+	If KeyDown(17) 
+		MoveEntity(player,0,0,0.06) ;Walk Forward
+		MoveEntity(player,0,bob_add,0)
 	EndIf
 
-	If is_Sprinting = True 
-		stamina=stamina-1
-	ElseIf stamina = 0 And sprinting = True Then
-		stamina=stamina-2
-	ElseIf stamina < 100 And sprinting = False Then
-		stamina=stamina+1
+
+	If KeyDown(31) 
+		MoveEntity(player,0,0,-0.06) ;Walk Backward
+		MoveEntity(player,0,bob_add,0)
 	EndIf
+
+
+	If KeyDown(32) 	
+		MoveEntity(player,0.06,0,0) ;Walk Right
+		MoveEntity(player,0,bob_add,0)
+	EndIf
+
+
+	If KeyDown(30) 
+		MoveEntity(player,-0.06,0,0) ;Walk Left
+		MoveEntity(player,0,bob_add,0)
+	EndIf
+
+
+	If bob_amt < (Pi * -0.08) bob_dir = True
+	If bob_amt > (Pi * 0.08)  bob_dir = False 
+	
+	If bob_dir = False 
+		bob_amt = bob_amt - 0.04
+		bob_add = Sin(bob_amt)
+	EndIf
+	If bob_dir = True
+		bob_amt = bob_amt + 0.04
+		bob_add = Sin(bob_amt)
+	EndIf
+
 End Function
