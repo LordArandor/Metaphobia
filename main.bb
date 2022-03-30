@@ -1,7 +1,7 @@
 Print("Metaphobia v0.0.5 - Deep Winter Studios")
 .start
 Input("Press Enter to start.")
-Graphics3D 800,600,32,2
+Graphics3D 1920,1080,32,2
 HidePointer 
 SetBuffer BackBuffer()
 AmbientLight 6,6,6
@@ -21,6 +21,7 @@ Global player = CreatePivot()
 ScaleEntity player,0.1,0.1,0.1
 Global camera = CreateCamera(player)
 Global flashlight = CreateLight(2,player)
+Global ears = CreateListener(player)
 
 Global player_Height# = 3.2
 
@@ -52,22 +53,23 @@ Const scale_z# = 0.1
 Const map_size_x = 512
 Const map_size_y = 512
 
-Const max_draw_x = 4
-Const max_draw_y = 4
-
-
-
+Const max_draw_x = 8
+Const max_draw_y = 8
 
 ;WATCHERS
 ;  These are sprite based so instead of giving them their own file I put them here to avoid annoyances. Meh. Sue me. 
-
 Global watcher_max = 3
-Global Dim watchers(watcher_max)
+Global Entity Dim watchers(watcher_max)
 
-
-
-
-
+Function WatcherSetup()
+	For i = 0 To watcher_max Step 1 
+		watchers(i) = CreateSprite()
+		watchers(i) = LoadSprite("Textures/watcher.png")
+		PositionEntity(watchers(i), EntityX(player), player_Height, EntityZ(player))
+		ScaleSprite(watchers(i), scale_x, scale_y)
+		ShowEntity(watchers(i))
+	Next
+End Function 
 
 ;DEBUG STUFF
 Global CompassTex = LoadTexture("Textures/compass.bmp")
@@ -89,7 +91,7 @@ Function LoadChunk()
 	maxx = pcx+max_draw_x
 	maxy = pcy+max_draw_y
 
-	r = Rnd(1,4)
+	r = Rnd(1,2)
 
 	For i = minx To maxx Step 1
 		For j = miny To maxy Step 1
@@ -120,7 +122,7 @@ Function ReloadChunk()
 				Delete(mainmap(i,j))
 				mainmap(i,j) = RndCell(i,j,r)
 				ShowCell(mainmap(i,j))
-				sanity = sanity - Rnd(1,2)
+				sanity = sanity - Rnd(0.1,1)
 			EndIf	
 		Next
 	Next   
@@ -201,7 +203,7 @@ End Function
 Function StatusCheck()
 
 	If flashlight_state = 1 
-		battery = battery - 1
+		battery = battery - Rnd(0,1)
 		If sanity < 600 Then sanity = sanity + 1
 	EndIf
 
@@ -235,6 +237,7 @@ LightColor flashlight,255,183,76
 ;Camera variables. 
 CameraFogMode camera,1
 CameraFogRange camera,max_draw_x*36,max_draw_x*52
+
 CameraFogColor camera,10,7,3
 CameraClsColor camera,10,7,3
 
@@ -266,6 +269,8 @@ DeloadChunk()
 Collisions(PLAY_COLL,WALL_COLL,2,2)
 ;Input("Loading completed.")
 
+;Add the watchers. This is a terrible implementation but I'm too lazy and doing this while actually working so whatever gets the file to compile will make me happy.
+WatcherSetup()
 
 ;Debug FPS stuff. I really should put this in the other debug category but am lazy and want to work on the Watchers. 
 fpsTimer = 0 
@@ -304,6 +309,9 @@ While Not KeyHit(1) Or lost = 1
 		Text 6,6,fps
 		Text 6,24, "Sanity: " + Floor(sanity / 10)
 		Text 6,36, "Battery: " + Floor(battery / 10)
+		Text 6,48, "Watcher [0] Location:" + Floor(EntityX(watchers(0))) + " " + Floor(EntityY(watchers(0))) + " " + Floor(EntityZ(watchers(0)))	
+		Text 6,60, "Exact Player Location:" + EntityX(player) + " " + EntityY(player) + " " + EntityZ(player)
+
 
 
 		;Text 6,54,pcx
