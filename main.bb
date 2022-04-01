@@ -1,7 +1,7 @@
 Print("Metaphobia v0.0.5 - Deep Winter Studios")
 .start
 Input("Press Enter to start.")
-Graphics3D 1920,1080,32,2
+Graphics3D 800,600,32,2
 HidePointer 
 SetBuffer BackBuffer()
 AmbientLight 6,6,6
@@ -53,8 +53,8 @@ Const scale_z# = 0.1
 Const map_size_x = 512
 Const map_size_y = 512
 
-Const max_draw_x = 8
-Const max_draw_y = 8
+Const max_draw_x = 4
+Const max_draw_y = 4
 
 ;WATCHERS
 ;  These are sprite based so instead of giving them their own file I put them here to avoid annoyances. Meh. Sue me. 
