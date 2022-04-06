@@ -180,8 +180,8 @@ Function CreateCell.Cell(x,y,f,ct$)
 	Return c
 End Function
 
-Function RndCell.Cell(x,y,e)
-	a = Rnd(1,3)
+Function RndCell.Cell(x,y,e,a)
+	;a = Rnd(0,1)
 	t = 0
 	c.Cell = New Cell
 	
@@ -239,8 +239,8 @@ Function RndCell.Cell(x,y,e)
 	
 	c\ctable.Table = New Table
 
-	r = Rnd(1,12)
-	If r < a-1 
+	r = Rnd(1,24)
+	If r = 23
 		c\ctable = RndTable(c\x,c\y)
 		c\ntable = 1
 	EndIf

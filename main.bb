@@ -1,7 +1,7 @@
 Print("Metaphobia v0.0.5 - Deep Winter Studios")
 .start
 Input("Press Enter to start.")
-Graphics3D 800,600,32,2
+Graphics3D 1920,1080,32,2
 HidePointer 
 SetBuffer BackBuffer()
 AmbientLight 6,6,6
@@ -24,7 +24,7 @@ Global flashlight = CreateLight(2,player)
 Global ears = CreateListener(player)
 
 Global player_Height# = 3.2
-
+Global player_Speed# = 0.08
 Global sanity = 600
 Global battery = 1200
 
@@ -53,23 +53,27 @@ Const scale_z# = 0.1
 Const map_size_x = 512
 Const map_size_y = 512
 
-Const max_draw_x = 4
-Const max_draw_y = 4
+Const max_draw_x = 8
+Const max_draw_y = 8
+
+Global wall_density = 0
+Global wall_weight = 10
 
 ;WATCHERS
 ;  These are sprite based so instead of giving them their own file I put them here to avoid annoyances. Meh. Sue me. 
-Global watcher_max = 3
+Global watcher_max = 1
 Global Entity Dim watchers(watcher_max)
 
 Function WatcherSetup()
 	For i = 0 To watcher_max Step 1 
 		watchers(i) = CreateSprite()
 		watchers(i) = LoadSprite("Textures/watcher.png")
-		PositionEntity(watchers(i), EntityX(player), player_Height, EntityZ(player))
-		ScaleSprite(watchers(i), scale_x, scale_y)
+		ScaleSprite(watchers(i), 2, 2)
 		ShowEntity(watchers(i))
 	Next
 End Function 
+
+
 
 ;DEBUG STUFF
 Global CompassTex = LoadTexture("Textures/compass.bmp")
@@ -77,10 +81,7 @@ Global CompassTex = LoadTexture("Textures/compass.bmp")
 Global Cell Dim mainmap.Cell(map_size_x+1,map_size_y+1) ;Maze array
 
 
-
-
 ;CHUNK FUNCTIONS 
-
 
 ;Create a chunk and load it in
 Function LoadChunk()
@@ -91,17 +92,25 @@ Function LoadChunk()
 	maxx = pcx+max_draw_x
 	maxy = pcy+max_draw_y
 
-	r = Rnd(1,2)
-
 	For i = minx To maxx Step 1
 		For j = miny To maxy Step 1
 			If i > 0 And j > 0
-				If mainmap(i,j) = Null Then mainmap(i,j) = RndCell(i,j,r)
+				If mainmap(i,j) = Null
+					r = Rnd(1,4)
+					mainmap(i,j) = RndCell(i,j,r,wall_density)
+					
+					wall_weight = wall_weight - Rnd(0,1)	
+					If wall_weight < 0  
+						wall_density = Rnd(0,3)
+						wall_weight = Rnd(1,200)
+					EndIf
+					
+					UpdateWatchers() 
+				EndIf
 				ShowCell(mainmap(i,j))
 			EndIf	
 		Next
 	Next
-
 End Function
 
 
@@ -114,13 +123,13 @@ Function ReloadChunk()
 	maxx = pcx+max_draw_x
 	maxy = pcy+max_draw_y
 
-	r = Rnd(1,4)
+	r = Rnd(3,4)
 	For i = minx To maxx Step 1
 		For j = miny To maxy Step 1
 			If i > 0 And j > 0
 				DeleteCell(mainmap(i,j))
 				Delete(mainmap(i,j))
-				mainmap(i,j) = RndCell(i,j,r)
+				mainmap(i,j) = RndCell(i,j,r,wall_weight)
 				ShowCell(mainmap(i,j))
 				sanity = sanity - Rnd(0.1,1)
 			EndIf	
@@ -176,6 +185,68 @@ Function UpdatePlayerCellPosition()
 
 	pcx = ux
 	pcy = uy
+End Function
+
+Function UpdateWatchers()
+	x_min = pcx-max_draw_x
+	z_min = pcy-max_draw_y
+
+	x_max = pcx+max_draw_x
+	z_max = pcy+max_draw_y
+
+	rnd_roll = 0
+	posx = 0.0
+	posy = 0.0
+
+	For i = 0 To watcher_max Step 1
+		
+		rnd_roll = Rnd(1,4)
+
+		;Top Wall
+		If rnd_roll = 1
+			rnd_roll = Rnd(x_min,x_max)
+			If mainmap(rnd_roll,z_min) <> Null
+				posx = EntityX(mainmap(rnd_roll,z_min)\cf)
+				posy = EntityZ(mainmap(rnd_roll,z_min)\cf)
+				PositionEntity(watchers(i),posx,player_Height,posy)
+			EndIf 
+			rnd_roll = 0
+		EndIf
+
+		;Bottom Wall
+		If rnd_roll = 2
+			rnd_roll = Rnd(x_min,x_max)
+			If mainmap(rnd_roll,z_max) <> Null
+				posx = EntityX(mainmap(rnd_roll,z_max)\cf)
+				posy = EntityZ(mainmap(rnd_roll,z_max)\cf)
+				PositionEntity(watchers(i),posx,player_Height,posy)
+			EndIf
+			rnd_roll = 0
+		EndIf 
+
+		;Left Wall
+		If rnd_roll = 3
+			rnd_roll = Rnd(z_min, z_max)
+			If mainmap(x_max,rnd_roll) <> Null
+				posx = EntityX(mainmap(x_max,rnd_roll)\cf)
+				posy = EntityZ(mainmap(x_max,rnd_roll)\cf)
+				PositionEntity(watchers(i),posx,player_Height,posy)
+			EndIf
+			rnd_roll = 0
+		EndIf
+
+		;Right Wall
+		If rnd_roll = 4
+			rnd_roll = Rnd(z_min,z_max)
+			If mainmap(x_min,rnd_roll) <> Null
+				posx = EntityX(mainmap(x_min,rnd_roll)\cf)
+				posy = EntityZ(mainmap(x_min,rnd_roll)\cf)
+				PositionEntity(watchers(i),posx,player_Height,posy)
+			EndIf
+			rnd_roll = 0
+		EndIf
+
+	Next
 End Function
 
 
@@ -234,13 +305,16 @@ LightConeAngles flashlight,0,80
 LightColor flashlight,255,183,76
 
 
-;Camera variables. 
+;Camera variables.
+CameraProjMode camera,1   
+CameraRange camera,1,max_draw_x*60
+
 CameraFogMode camera,1
-CameraFogRange camera,max_draw_x*36,max_draw_x*52
+CameraFogRange camera,max_draw_x*56,max_draw_x*60
 
-CameraFogColor camera,10,7,3
-CameraClsColor camera,10,7,3
 
+CameraFogColor camera,1,1,1
+CameraClsColor camera,1,1,1
 
 ;Player collider. We do need this.
 EntityType player,PLAY_COLL
@@ -255,22 +329,21 @@ PositionEntity(compass,-12,0,-12)
 
 
 ;Randomly put the player somewhere
-px = Floor(Rnd(1381,3000)/5.4)
-py = Floor(Rnd(1381,2764)/5.4)
+px = Floor(Rnd(310,310))
+py = Floor(Rnd(300,300))
 PositionEntity player,px,player_Height,py
 
 ;Get the player's starting position
 UpdatePlayerCellPosition()
 
+;Add the watchers. This is a terrible implementation but I'm too lazy and doing this while actually working so whatever gets the file to compile will make me happy.
+WatcherSetup()
 
 ;Actually load the starting chunks of the game
 LoadChunk()
 DeloadChunk()
 Collisions(PLAY_COLL,WALL_COLL,2,2)
 ;Input("Loading completed.")
-
-;Add the watchers. This is a terrible implementation but I'm too lazy and doing this while actually working so whatever gets the file to compile will make me happy.
-WatcherSetup()
 
 ;Debug FPS stuff. I really should put this in the other debug category but am lazy and want to work on the Watchers. 
 fpsTimer = 0 
@@ -309,10 +382,9 @@ While Not KeyHit(1) Or lost = 1
 		Text 6,6,fps
 		Text 6,24, "Sanity: " + Floor(sanity / 10)
 		Text 6,36, "Battery: " + Floor(battery / 10)
-		Text 6,48, "Watcher [0] Location:" + Floor(EntityX(watchers(0))) + " " + Floor(EntityY(watchers(0))) + " " + Floor(EntityZ(watchers(0)))	
+		Text 6,48, "Watcher [1] Location:" + Floor(EntityX(watchers(1))) + " " + Floor(EntityY(watchers(1))) + " " + Floor(EntityZ(watchers(1)))	
 		Text 6,60, "Exact Player Location:" + EntityX(player) + " " + EntityY(player) + " " + EntityZ(player)
-
-
+		Text 6,72, "Wall weight: " + wall_weight + " Wall density: " + wall_density 
 
 		;Text 6,54,pcx
 		;Text 6,66,pcy

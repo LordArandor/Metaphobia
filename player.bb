@@ -9,25 +9,25 @@ End Function
 Function ControlPlayer(player)
 
 	If KeyDown(17) 
-		MoveEntity(player,0,0,0.06) ;Walk Forward
+		MoveEntity(player,0,0,player_Speed) ;Walk Forward
 		MoveEntity(player,0,bob_add,0)
 	EndIf
 
 
 	If KeyDown(31) 
-		MoveEntity(player,0,0,-0.06) ;Walk Backward
+		MoveEntity(player,0,0,-player_Speed) ;Walk Backward
 		MoveEntity(player,0,bob_add,0)
 	EndIf
 
 
 	If KeyDown(32) 	
-		MoveEntity(player,0.06,0,0) ;Walk Right
+		MoveEntity(player,player_Speed,0,0) ;Walk Right
 		MoveEntity(player,0,bob_add,0)
 	EndIf
 
 
 	If KeyDown(30) 
-		MoveEntity(player,-0.06,0,0) ;Walk Left
+		MoveEntity(player,-player_Speed,0,0) ;Walk Left
 		MoveEntity(player,0,bob_add,0)
 	EndIf
 
