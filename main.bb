@@ -1,10 +1,11 @@
 Print("Metaphobia v0.0.5 - Deep Winter Studios")
 .start
 Input("Press Enter to start.")
-Graphics3D 1920,1080,32,2
+Graphics3D 1600,900,32,2
+AntiAlias enable 
 HidePointer 
 SetBuffer BackBuffer()
-AmbientLight 6,6,6
+AmbientLight 5,2,0
 Print("Loading...")
 
 
@@ -57,12 +58,12 @@ Const max_draw_x = 8
 Const max_draw_y = 8
 
 Global wall_density = 0
-Global wall_weight = 10
+Global wall_weight = 50
 
 ;WATCHERS
 ;  These are sprite based so instead of giving them their own file I put them here to avoid annoyances. Meh. Sue me. 
 Global watcher_max = 1
-Global Entity Dim watchers(watcher_max)
+Global Entity Dim watchers(1)
 
 Function WatcherSetup()
 	For i = 0 To watcher_max Step 1 
@@ -129,7 +130,7 @@ Function ReloadChunk()
 			If i > 0 And j > 0
 				DeleteCell(mainmap(i,j))
 				Delete(mainmap(i,j))
-				mainmap(i,j) = RndCell(i,j,r,wall_weight)
+				mainmap(i,j) = RndCell(i,j,r,0)
 				ShowCell(mainmap(i,j))
 				sanity = sanity - Rnd(0.1,1)
 			EndIf	
@@ -206,8 +207,8 @@ Function UpdateWatchers()
 		If rnd_roll = 1
 			rnd_roll = Rnd(x_min,x_max)
 			If mainmap(rnd_roll,z_min) <> Null
-				posx = EntityX(mainmap(rnd_roll,z_min)\cf)
-				posy = EntityZ(mainmap(rnd_roll,z_min)\cf)
+				posx = EntityX(mainmap(rnd_roll,z_min)\cf) ;+ Rnd(-50,50)
+				posy = EntityZ(mainmap(rnd_roll,z_min)\cf) ;+ Rnd(-50,50)
 				PositionEntity(watchers(i),posx,player_Height,posy)
 			EndIf 
 			rnd_roll = 0
@@ -217,8 +218,8 @@ Function UpdateWatchers()
 		If rnd_roll = 2
 			rnd_roll = Rnd(x_min,x_max)
 			If mainmap(rnd_roll,z_max) <> Null
-				posx = EntityX(mainmap(rnd_roll,z_max)\cf)
-				posy = EntityZ(mainmap(rnd_roll,z_max)\cf)
+				posx = EntityX(mainmap(rnd_roll,z_max)\cf) ;+ Rnd(-50,50)
+				posy = EntityZ(mainmap(rnd_roll,z_max)\cf) ;+ Rnd(-50,50)
 				PositionEntity(watchers(i),posx,player_Height,posy)
 			EndIf
 			rnd_roll = 0
@@ -228,8 +229,8 @@ Function UpdateWatchers()
 		If rnd_roll = 3
 			rnd_roll = Rnd(z_min, z_max)
 			If mainmap(x_max,rnd_roll) <> Null
-				posx = EntityX(mainmap(x_max,rnd_roll)\cf)
-				posy = EntityZ(mainmap(x_max,rnd_roll)\cf)
+				posx = EntityX(mainmap(x_max,rnd_roll)\cf) ;+ Rnd(-50,50)
+				posy = EntityZ(mainmap(x_max,rnd_roll)\cf) ;+ Rnd(-50,50)
 				PositionEntity(watchers(i),posx,player_Height,posy)
 			EndIf
 			rnd_roll = 0
@@ -239,8 +240,8 @@ Function UpdateWatchers()
 		If rnd_roll = 4
 			rnd_roll = Rnd(z_min,z_max)
 			If mainmap(x_min,rnd_roll) <> Null
-				posx = EntityX(mainmap(x_min,rnd_roll)\cf)
-				posy = EntityZ(mainmap(x_min,rnd_roll)\cf)
+				posx = EntityX(mainmap(x_min,rnd_roll)\cf) ;+ Rnd(-50,50)
+				posy = EntityZ(mainmap(x_min,rnd_roll)\cf) ;+ Rnd(-50,50)
 				PositionEntity(watchers(i),posx,player_Height,posy)
 			EndIf
 			rnd_roll = 0
@@ -310,11 +311,11 @@ CameraProjMode camera,1
 CameraRange camera,1,max_draw_x*60
 
 CameraFogMode camera,1
-CameraFogRange camera,max_draw_x*56,max_draw_x*60
+CameraFogRange camera,max_draw_x*40,max_draw_x*60
 
 
-CameraFogColor camera,1,1,1
-CameraClsColor camera,1,1,1
+CameraFogColor camera,8,5,1
+CameraClsColor camera,8,5,1
 
 ;Player collider. We do need this.
 EntityType player,PLAY_COLL
@@ -390,7 +391,7 @@ While Not KeyHit(1) Or lost = 1
 		;Text 6,66,pcy
 		;Text 6,72,mainmap(pcx,pcy)\ntable
 	Flip
-
+	VWait
 Wend
 
 End
