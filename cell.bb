@@ -13,6 +13,10 @@ Field cc ;Cell ceiling entity
 Field is = 0; Is.
 End Type
 
+
+;FANCY NUMBER
+Global magic_scalar = 2.7
+
 ;COLLIDER VARIABLES
 Global WALL_COLL = 1
 
@@ -169,7 +173,7 @@ Function CreateCell.Cell(x,y,f,ct$)
 	PositionEntity(c\we,x*s,0,y*s)
 	PositionEntity(c\ww,x*s,0,y*s)
 			
-	PositionEntity(c\cf,x*s,10,y*s-2.70)			
+	PositionEntity(c\cf,x*s,10,y*s-magic_scalar)			
 
 	If c\n = 1 Then ShowEntity c\wn
 	If c\s = 1 Then ShowEntity c\ws
@@ -223,14 +227,19 @@ Function RndCell.Cell(x,y,e,a)
 	HideEntity c\cnw
 	HideEntity c\cse
 	HideEntity c\csw
-
+	
 	For i = 1 To a Step 1
-	t = Rnd(1,4)
-	If t = 1 Then c\n = 1
-	If t = 2 Then c\e = 1
-	If t = 3 Then c\s = 1
-	If t = 4 Then c\w = 1 
+		t = Rand(1,4)
+		If t = 1 Then c\n = 1
+		If t = 2 Then c\e = 1
+		If t = 3 Then c\s = 1
+		If t = 4 Then c\w = 1 
 	Next
+
+	If a = 4 Then 
+		c\e = 0
+		c\w = 0
+	EndIf
 
 	If e = 1 Then c\n = 0
 	If e = 2 Then c\e = 0
@@ -239,8 +248,8 @@ Function RndCell.Cell(x,y,e,a)
 	
 	c\ctable.Table = New Table
 
-	r = Rnd(1,24)
-	If r = 23
+	r = Rnd(1,100)
+	If r = 100
 		c\ctable = RndTable(c\x,c\y)
 		c\ntable = 1
 	EndIf
@@ -264,7 +273,7 @@ Function RndCell.Cell(x,y,e,a)
 	PositionEntity(c\cnw,x*s-2.7,2.7,y*s+2.7)
 			
 	PositionEntity(c\cf,x*sf,0,y*sf)
-	PositionEntity(c\cc,x*sf,5.4,y*sf)
+	PositionEntity(c\cc,x*sf,magic_scalar*2,y*sf)
 	
 	is = 1
 	Return c

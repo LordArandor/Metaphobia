@@ -1,11 +1,10 @@
-Print("Metaphobia v0.0.5 - Deep Winter Studios")
+;Print("Metaphobia v0.0.5 - Deep Winter Studios")
 .start
-Input("Press Enter to start.")
-Graphics3D 1600,900,32,2
-AntiAlias enable 
+;Input("Press Enter to start.")
+Graphics3D 1600,900,32,2 
 HidePointer 
 SetBuffer BackBuffer()
-AmbientLight 5,2,0
+AmbientLight 8,8,8
 Print("Loading...")
 
 
@@ -26,8 +25,12 @@ Global ears = CreateListener(player)
 
 Global player_Height# = 3.2
 Global player_Speed# = 0.08
-Global sanity = 600
-Global battery = 1200
+
+Global sanity_max = 1200
+Global battery_max = 1200
+
+Global sanity = sanity_max
+Global battery = battery_max
 
 Global bob_dir = True
 Global bob_amt# = 0
@@ -51,26 +54,26 @@ Const scale_z# = 0.1
 
 
 ;MAP
-Const map_size_x = 512
-Const map_size_y = 512
+Const map_size_x = 1024
+Const map_size_y = 1024
 
-Const max_draw_x = 8
-Const max_draw_y = 8
+Const max_draw_x = 6
+Const max_draw_y = 6
 
 Global wall_density = 0
-Global wall_weight = 50
+Global wall_weight = 250
 
 ;WATCHERS
 ;  These are sprite based so instead of giving them their own file I put them here to avoid annoyances. Meh. Sue me. 
-Global watcher_max = 1
-Global Entity Dim watchers(1)
+Global watcher_max = 120
+Global Entity Dim watchers(watcher_max)
 
 Function WatcherSetup()
 	For i = 0 To watcher_max Step 1 
 		watchers(i) = CreateSprite()
 		watchers(i) = LoadSprite("Textures/watcher.png")
 		ScaleSprite(watchers(i), 2, 2)
-		ShowEntity(watchers(i))
+		HideEntity(watchers(i))
 	Next
 End Function 
 
@@ -99,10 +102,9 @@ Function LoadChunk()
 				If mainmap(i,j) = Null
 					r = Rnd(1,4)
 					mainmap(i,j) = RndCell(i,j,r,wall_density)
-					
-					wall_weight = wall_weight - Rnd(0,1)	
+					wall_weight = wall_weight - 1
 					If wall_weight < 0  
-						wall_density = Rnd(0,3)
+						wall_density = Rnd(0,4)
 						wall_weight = Rnd(1,200)
 					EndIf
 					
@@ -246,10 +248,26 @@ Function UpdateWatchers()
 			EndIf
 			rnd_roll = 0
 		EndIf
+	
+		HideEntity(watchers(i))
+		TranslateEntity(watchers(i),Rnd(-2.7,2.7),Rnd(2.7),Rnd(-2.7,2.7))
+		rnd_roll = Rnd(0,sanity_max)
+		If rnd_roll > sanity Then ShowEntity(watchers(i))
 
 	Next
 End Function
 
+Function ActiveWatchers()
+	
+	For i = 0 To watcher_max Step 1
+		;TranslateEntity(watchers(i),Rnd(-1,1),Rnd(1,1),Rnd(1,1))
+		
+		If EntityInView(watchers(i),camera)
+			
+		EndIf 
+	Next
+
+End Function
 
 ;Controls the flashlight light. 
 Function FlashlightControl()
@@ -276,16 +294,17 @@ Function StatusCheck()
 
 	If flashlight_state = 1 
 		battery = battery - Rnd(0,1)
-		If sanity < 600 Then sanity = sanity + 1
+		LightRange flashlight,(battery/25)
+		If sanity < sanity_max Then sanity = sanity + 1
 	EndIf
 
-	If mainmap(pcx,pcy)\ntable = 1
+	If mainmap(pcx,pcy)\ntable = 1 Or mainmap(pcx+1,pcy)\ntable = 1 Or mainmap(pcx-1,pcy)\ntable = 1 Or mainmap(pcx,pcy+1)\ntable = 1 Or mainmap(pcx,pcy-1)\ntable = 1
 		sanity = sanity + 1
 	EndIf
 
 	If flashlight_state = 0
-		If mainmap(pcx,pcy)\ntable = 0 Then sanity = sanity - Rnd(1,3)
-		If battery < 1200 Then battery = battery + 1
+		If mainmap(pcx,pcy)\ntable = 0 And mainmap(pcx+1,pcy)\ntable = 0 And mainmap(pcx-1,pcy)\ntable = 0 And mainmap(pcx,pcy+1)\ntable = 0 And mainmap(pcx,pcy-1)\ntable = 0 Then sanity = sanity - Rnd(1,3)
+		If battery < battery_max Then battery = battery + Rnd(1,3)
 	EndIf 
 
 	If battery = 0 
@@ -294,7 +313,7 @@ Function StatusCheck()
 		LightRange flashlight,0
 	EndIf
 
-	If battery = 600 Then fs_dead = 0
+	If battery = battery_max/2 Then fs_dead = 0
 	If sanity <= 0 Then lost = 1
 
 End Function
@@ -330,8 +349,8 @@ PositionEntity(compass,-12,0,-12)
 
 
 ;Randomly put the player somewhere
-px = Floor(Rnd(310,310))
-py = Floor(Rnd(300,300))
+px = Floor((map_size_x/2)*scale_x)
+py = Floor((map_size_x/2)*scale_x)
 PositionEntity player,px,player_Height,py
 
 ;Get the player's starting position
@@ -367,6 +386,9 @@ While Not KeyHit(1) Or lost = 1
 
 	TurnCamera(camera,player,0.2)
 	ControlPlayer(player)
+	
+	ActiveWatchers()
+	
 
 	If (MilliSecs() - fpsTimer > 1000)
 		fpsTimer = MilliSecs()
@@ -391,7 +413,6 @@ While Not KeyHit(1) Or lost = 1
 		;Text 6,66,pcy
 		;Text 6,72,mainmap(pcx,pcy)\ntable
 	Flip
-	VWait
 Wend
 
 End
