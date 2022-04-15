@@ -1,7 +1,7 @@
 ;Print("Metaphobia v0.0.5 - Deep Winter Studios")
 .start
 ;Input("Press Enter to start.")
-Graphics3D 1600,900,32,2 
+Graphics3D 800,600,32,2 
 HidePointer 
 SetBuffer BackBuffer()
 AmbientLight 8,8,8
