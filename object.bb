@@ -9,6 +9,10 @@ Field tlamp.Lamp
 End Type
 
 
+Type 
+
+
+
 ;Textures
 LampTex = LoadTexture("Textures/lamp.jpg",256)
 TableTex = LoadTexture("Textures/table.jpg",256)

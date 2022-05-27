@@ -81,7 +81,7 @@ Function WatcherSetup()
 		LightConeAngles watcherlight(i),15,45
 		HideEntity(watcherlight(i))
 		ScaleSprite(watchers(i), 2, 2)
-		HideEntity(watchers(i))
+		HideEntity(watchers(i)) 
 	Next
 End Function 
 
