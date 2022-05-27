@@ -273,7 +273,7 @@ Function RndCell.Cell(x,y,e,a)
 	PositionEntity(c\cnw,x*s-2.7,2.7,y*s+2.7)
 			
 	PositionEntity(c\cf,x*sf,0,y*sf)
-	PositionEntity(c\cc,x*sf,magic_scalar*2,y*sf)
+	PositionEntity(c\cc,x*sf,magic_scalar*6,y*sf)
 	
 	is = 1
 	Return c

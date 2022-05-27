@@ -1,7 +1,7 @@
 ;Print("Metaphobia v0.0.5 - Deep Winter Studios")
 .start
 ;Input("Press Enter to start.")
-Graphics3D 800,600,32,2 
+Graphics3D 1600,900,32,2 
 HidePointer 
 SetBuffer BackBuffer()
 AmbientLight 8,8,8
@@ -20,13 +20,14 @@ SeedRnd MilliSecs()
 Global player = CreatePivot()
 ScaleEntity player,0.1,0.1,0.1
 Global camera = CreateCamera(player)
-Global flashlight = CreateLight(2,player)
+Global flashlight = CreateLight(3,player)
+Global selflight = CreateLight(2,player)
 Global ears = CreateListener(player)
 
 Global player_Height# = 3.2
 Global player_Speed# = 0.08
 
-Global sanity_max = 1200
+Global sanity_max = 2400
 Global battery_max = 1200
 
 Global sanity = sanity_max
@@ -65,13 +66,20 @@ Global wall_weight = 250
 
 ;WATCHERS
 ;  These are sprite based so instead of giving them their own file I put them here to avoid annoyances. Meh. Sue me. 
-Global watcher_max = 120
+Global watcher_max = 24 ; This number can be changed, allowing you to add as many watchers as you want! Fun! >:D
+						; Yes, it can also massively slow the game down if you give it some truly silly numbers.
 Global Entity Dim watchers(watcher_max)
+Global EntityLight Dim watcherlight(watcher_max)
 
 Function WatcherSetup()
 	For i = 0 To watcher_max Step 1 
 		watchers(i) = CreateSprite()
 		watchers(i) = LoadSprite("Textures/watcher.png")
+		watcherlight(i) = CreateLight(2,watchers(i))
+		LightRange watcherlight(i),5
+		LightColor watcherlight(i),100,100,150
+		LightConeAngles watcherlight(i),15,45
+		HideEntity(watcherlight(i))
 		ScaleSprite(watchers(i), 2, 2)
 		HideEntity(watchers(i))
 	Next
@@ -190,6 +198,8 @@ Function UpdatePlayerCellPosition()
 	pcy = uy
 End Function
 
+
+; Update the watcher position, spawn them in if the player has less sanity. Spent a good 30 seconds searching for this before I realized I never commented above it like every other function. 
 Function UpdateWatchers()
 	x_min = pcx-max_draw_x
 	z_min = pcy-max_draw_y
@@ -250,9 +260,13 @@ Function UpdateWatchers()
 		EndIf
 	
 		HideEntity(watchers(i))
-		TranslateEntity(watchers(i),Rnd(-2.7,2.7),Rnd(2.7),Rnd(-2.7,2.7))
+		HideEntity(watcherlight(i))
+		TranslateEntity(watchers(i),Rnd(-2.7,2.7),Rnd(2.7*3),Rnd(-2.7,2.7))
 		rnd_roll = Rnd(0,sanity_max)
-		If rnd_roll > sanity Then ShowEntity(watchers(i))
+		If rnd_roll > sanity
+			ShowEntity(watchers(i))
+			ShowEntity(watcherlight(i))
+		EndIf
 
 	Next
 End Function
@@ -267,25 +281,6 @@ Function ActiveWatchers()
 		EndIf 
 	Next
 
-End Function
-
-;Controls the flashlight light. 
-Function FlashlightControl()
-	p = 0
-
-	If KeyHit(33)
-		If flashlight_state = 0 And fs_dead = 0 And p = 0
-		flashlight_state = 1
-		LightRange flashlight,24
-		p = 1
-	EndIf
-
-	If flashlight_state = 1 Or battery = 0 And p = 0
-		flashlight_state = 0
-		LightRange flashlight,0
-		p = 1
-	EndIf
-	EndIf 
 End Function
 
 
@@ -307,10 +302,31 @@ Function StatusCheck()
 		If battery < battery_max Then battery = battery + Rnd(1,3)
 	EndIf 
 
+
+	p = 0
+
+	If KeyHit(33)
+		If flashlight_state = 0 And fs_dead = 0 And p = 0
+		flashlight_state = 1
+		LightRange flashlight,200
+		LightRange selflight,20
+		p = 1
+	EndIf
+
+	If flashlight_state = 1 Or battery = 0 And p = 0
+		flashlight_state = 0
+		LightRange flashlight,0
+		LightRange selflight,0
+		p = 1
+	EndIf 
+	EndIf
+
+
 	If battery = 0 
 		fs_dead = 1
 		flashlight_state = 0
 		LightRange flashlight,0
+		LightRange selflight,0
 	EndIf
 
 	If battery = battery_max/2 Then fs_dead = 0
@@ -321,8 +337,10 @@ End Function
 
 ;Flashlight variables 
 LightRange flashlight,0
-LightConeAngles flashlight,0,80
-LightColor flashlight,255,183,76
+LightRange selflight,0
+LightConeAngles flashlight,30,45
+LightColor flashlight,255,214,170
+LightColor selflight,255,214,170
 
 
 ;Camera variables.
@@ -382,7 +400,6 @@ While Not KeyHit(1) Or lost = 1
 	
 	r = Rnd(500,1500)
 	If MilliSecs() - fpsTimer > r Then StatusCheck()
-	FlashlightControl()
 
 	TurnCamera(camera,player,0.2)
 	ControlPlayer(player)
